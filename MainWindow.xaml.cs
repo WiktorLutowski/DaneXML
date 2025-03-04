@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.IO;
 using System.Windows;
 using System.Xml.Serialization;
 
@@ -10,6 +11,8 @@ namespace DaneXML
     public partial class MainWindow : Window
     {
         ObservableCollection<Employee> employees;
+        XmlSerializer serializer = new XmlSerializer(typeof(ObservableCollection<Employee>));
+
         public MainWindow()
         {
             InitializeComponent();
@@ -21,12 +24,22 @@ namespace DaneXML
 
         private void saveButton_Click(object sender, RoutedEventArgs e)
         {
-            
+            var stream = File.Create("save.xml");
+
+            serializer.Serialize(stream, employees);
+
+            stream.Close();
         }
 
         private void loadButton_Click(object sender, RoutedEventArgs e)
         {
+            var stream = File.OpenRead("save.xml");
 
+            employees = (ObservableCollection<Employee>)serializer.Deserialize(stream);
+
+            dataGrid.ItemsSource = employees;
+
+            stream.Close();
         }
     }
 }
